@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react"
 import { useCanvasContext } from "./CanvasContext"
-import { Layer } from "./Layer"
+import { Layer } from "./layer"
 
 export function Tools() {
   const { board } = useCanvasContext()
@@ -9,7 +9,7 @@ export function Tools() {
   const [localLayer, setLocalLayer] = useState(0)
 
   useEffect(() => {
-    setLocalColor(board.getColor())
+    setLocalColor(board.getColor().hex())
     setLayers(board.getLayers().reverse())
     setLocalLayer(board.getCurrLayer())
   }, [board])

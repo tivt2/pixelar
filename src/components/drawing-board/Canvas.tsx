@@ -1,5 +1,5 @@
 import { MouseEvent, WheelEvent, useEffect, useRef } from "react"
-import { ACTION } from "./ToolManager"
+import { ACTION } from "./tool-manager"
 import { useCanvasContext } from "./CanvasContext"
 
 export function Canvas() {

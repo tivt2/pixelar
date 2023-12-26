@@ -5,7 +5,7 @@ import { Tools } from "./components/drawing-board/Tools"
 function App() {
   return (
     <CanvasContextProvider>
-      <main className="flex h-screen flex-row items-center justify-center gap-4 bg-green-200">
+      <main className="flex h-screen w-full flex-row items-center justify-center gap-4 bg-green-200">
         <Canvas />
         <Tools />
       </main>

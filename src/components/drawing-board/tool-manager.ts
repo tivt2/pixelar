@@ -1,6 +1,6 @@
 import { SyntheticEvent } from "react"
-import { DrawingBoardState } from "./DrawingBoard"
-import { Draw, Erase, Pan, Zoom } from "./BoardTools"
+import { DrawingBoard } from "./drawing-board"
+import { BoardTool, Draw, Erase, Pan, Zoom } from "./board-tools"
 
 export const ACTION = {
   DRAW: "DRAW",
@@ -12,11 +12,6 @@ export const ACTION = {
 
 export type Action = keyof typeof ACTION
 
-export interface BoardTool {
-  start(e: SyntheticEvent, state: DrawingBoardState): void
-  continue(e: SyntheticEvent, state: DrawingBoardState): void
-  end(e: SyntheticEvent, state: DrawingBoardState): void
-}
 export class ToolManager {
   private currentTool: BoardTool | null = null
   private tools: Record<Action, BoardTool> = {} as Record<Action, BoardTool>
@@ -37,19 +32,19 @@ export class ToolManager {
   getCurrent(): BoardTool | null {
     return this.currentTool
   }
-  startAction(e: SyntheticEvent, state: DrawingBoardState) {
+  startAction(e: SyntheticEvent, board: DrawingBoard) {
     if (this.currentTool) {
-      this.currentTool.start(e, state)
+      this.currentTool.start(e, board)
     }
   }
-  continueAction(e: SyntheticEvent, state: DrawingBoardState) {
+  continueAction(e: SyntheticEvent, board: DrawingBoard) {
     if (this.currentTool) {
-      this.currentTool.continue(e, state)
+      this.currentTool.continue(e, board)
     }
   }
-  endAction(e: SyntheticEvent, state: DrawingBoardState) {
+  endAction(e: SyntheticEvent, board: DrawingBoard) {
     if (this.currentTool) {
-      this.currentTool.end(e, state)
+      this.currentTool.end(e, board)
       this.currentTool = null
     }
   }

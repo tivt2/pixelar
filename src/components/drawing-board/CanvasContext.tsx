@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useRef } from "react"
-import { DrawingBoard } from "./DrawingBoard"
+import { DrawingBoard } from "./drawing-board"
 
 type CanvasContext = {
   board: DrawingBoard
