@@ -25,8 +25,11 @@ export class DrawingBoard {
   private layers: Array<Layer>
   private currLayer: number
 
-  private bg: Layer
   private bgMultiplier: number
+  private bg: Layer
+
+  private effectMultiplier: number
+  private effect: Layer
 
   private color: Color
 
@@ -48,8 +51,10 @@ export class DrawingBoard {
     this.imgState = []
     this.layers = []
     this.currLayer = -1
-    this.bg = new Layer(0, 0)
     this.bgMultiplier = 1
+    this.bg = new Layer(0, 0)
+    this.effectMultiplier = 1
+    this.effect = new Layer(0, 0)
     this.color = new Color("")
   }
 
@@ -69,8 +74,13 @@ export class DrawingBoard {
     this.imgState = new Array<PixelState>(width * height).fill(null)
     this.layers = [new Layer(width, height)]
     this.currLayer = 0
-    this.bg = new Layer(width, height)
     this.bgMultiplier = 1
+    this.bg = new Layer(width * this.bgMultiplier, height * this.bgMultiplier)
+    this.effectMultiplier = 1
+    this.effect = new Layer(
+      width * this.effectMultiplier,
+      height * this.effectMultiplier
+    )
 
     this.color = new Color("#ff8800")
 
@@ -81,7 +91,7 @@ export class DrawingBoard {
 
     this.clearBoard()
     this.renderBG()
-    this.renderBorder()
+    this.renderEffects()
   }
 
   setColor(color: string) {
@@ -164,25 +174,26 @@ export class DrawingBoard {
     )
   }
 
+  renderEffects() {
+    this.renderBorder()
+  }
+
   renderBorder() {
     const scale = this.getScale()
     this.ctx.lineWidth = 2
     this.ctx.strokeStyle = "black"
-    this.ctx.strokeRect(1, 1, this.width * scale - 2, this.height * scale - 2)
+    this.ctx.strokeRect(-1, -1, this.width * scale + 2, this.height * scale + 2)
   }
 
   drawBG() {
-    let checker = 0
-    for (let y = 0; y < this.height; y++) {
-      for (let x = 0; x < this.width; x++) {
-        if (checker % 2 === 0) {
+    for (let y = 0; y < this.bg.canvas.height; y++) {
+      for (let x = 0; x < this.bg.canvas.width; x++) {
+        if ((x + y) % 2 === 0) {
           this.bg.paintPixel(x, y, new Color("#dddddd"))
         } else {
           this.bg.paintPixel(x, y, new Color("#bbbbbb"))
         }
-        checker++
       }
-      checker += (this.width % 2) + 1
     }
   }
 
@@ -198,12 +209,13 @@ export class DrawingBoard {
   }
 
   renderLayer(layer: Layer) {
+    const scale = this.getScale()
     this.ctx.drawImage(
       layer.canvas,
       0,
       0,
-      this.width * this.getScale(),
-      this.height * this.getScale()
+      this.width * scale,
+      this.height * scale
     )
   }
 
@@ -228,7 +240,7 @@ export class DrawingBoard {
     this.clearBoard()
     this.renderBG()
     this.renderAllLayers()
-    this.renderBorder()
+    this.renderEffects()
   }
 
   generateBackground() {
