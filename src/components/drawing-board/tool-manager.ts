@@ -1,6 +1,6 @@
 import { SyntheticEvent } from "react"
 import { DrawingBoard } from "./drawing-board"
-import { BoardTool, Draw, Erase, Pan, Zoom } from "./board-tools"
+import { BoardTool, Draw, Erase, FloodFill, Pan, Zoom } from "./board-tools"
 
 export const ACTION = {
   DRAW: "DRAW",
@@ -8,6 +8,7 @@ export const ACTION = {
   PAN: "PAN",
   ZOOMIN: "ZOOMIN",
   ZOOMOUT: "ZOOMOUT",
+  FLOODFILL: "FLOODFILL",
 } as const
 
 export type Action = keyof typeof ACTION
@@ -23,6 +24,7 @@ export class ToolManager {
       PAN: new Pan(),
       ZOOMIN: new Zoom(1.04),
       ZOOMOUT: new Zoom(0.96),
+      FLOODFILL: new FloodFill(),
     }
   }
 

@@ -117,3 +117,55 @@ export class Zoom implements BoardTool {
   continue() {}
   end() {}
 }
+
+export class FloodFill implements BoardTool {
+  start(e: MouseEvent, board: DrawingBoard) {
+    const { x, y } = board.getMouseOffsetPosition(e)
+    const indexes = board.getPixelIndexes(x, y)
+    if (!indexes) {
+      return
+    }
+    const { xIdx, yIdx } = indexes
+    const layer = board.getLayer()
+
+    const oldColor = layer.getPixelColor(xIdx, yIdx)
+    const newColor = board.getColor()
+
+    const rec = (xIdx: number, yIdx: number) => {
+      const color = layer.getPixelColor(xIdx, yIdx)
+      if (!oldColor.isEqual(color.hex())) {
+        return
+      }
+
+      if (color.isEqual(newColor.hex())) {
+        return
+      }
+
+      layer.paintPixel(xIdx, yIdx, newColor)
+
+      const overColor = board.getPixelOverColor(xIdx, yIdx)
+      if (overColor.isEqual("")) {
+        board.renderPixel(xIdx, yIdx, newColor)
+        board.renderBorder()
+      }
+
+      if (yIdx < layer.canvas.height-1) {
+        rec(xIdx, yIdx+1)
+      }
+      if (xIdx < layer.canvas.width-1) {
+        rec(xIdx+1, yIdx)
+      }
+      if (yIdx > 0) {
+        rec(xIdx, yIdx-1)
+      }
+      if (xIdx > 0) {
+        rec(xIdx-1, yIdx)
+      }
+    }
+
+    rec(xIdx, yIdx)
+  }
+
+  continue() {}
+  end() {}
+}

@@ -30,7 +30,7 @@ export class Layer {
     return new Color(hex)
   }
 
-  paintPixel(xIdx: number, yIdx: number, color: Color) {
+    paintPixel(xIdx: number, yIdx: number, color: Color) {
     this.ctx.fillStyle = color.hex()
     this.ctx.fillRect(xIdx, yIdx, 1, 1)
   }

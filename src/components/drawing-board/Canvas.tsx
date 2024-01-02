@@ -21,7 +21,11 @@ export function Canvas() {
   function handleMouseDown(e: MouseEvent) {
     switch (e.button) {
       case 0:
-        board.startAction(ACTION.DRAW, e)
+        if (e.ctrlKey) {
+          board.startAction(ACTION.FLOODFILL, e)
+        } else {
+          board.startAction(ACTION.DRAW, e)
+        }
         break
       case 1:
         board.startAction(ACTION.PAN, e)
