@@ -1,5 +1,7 @@
 ### TODO
+
 ---
+
 # TOOLS
 
 * Line Tool
@@ -13,11 +15,22 @@
 * Stamp Tool
 
 * Add board state to control tools that maintain state to be utilized
+
 ---
+
 # FRAMES
 
 * Add ´frame´ functionality
 * fps controller
+* preview
 * onion skin
 * duplicate frame
 * move frame
+
+---
+
+# OTHERS
+
+* layer color pallet
+* frame color pallet
+* change specific color on layer/frame

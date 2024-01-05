@@ -3,6 +3,7 @@ import { Color } from "./board-types"
 export class Layer {
   public canvas: OffscreenCanvas
   public ctx: OffscreenCanvasRenderingContext2D
+  private colorPallet: Set<Color>
 
   constructor(width: number, height: number) {
     this.canvas = new OffscreenCanvas(width, height)
@@ -12,6 +13,8 @@ export class Layer {
     }
     this.ctx = ctx
     this.ctx.imageSmoothingEnabled = false
+
+    this.colorPallet = new Set()
   }
 
   getPixelColor(xIdx: number, yIdx: number): Color {
@@ -30,9 +33,14 @@ export class Layer {
     return new Color(hex)
   }
 
-    paintPixel(xIdx: number, yIdx: number, color: Color) {
+  getColorPallet(): Set<Color> {
+    return this.colorPallet
+  }
+
+  paintPixel(xIdx: number, yIdx: number, color: Color) {
     this.ctx.fillStyle = color.hex()
     this.ctx.fillRect(xIdx, yIdx, 1, 1)
+    this.colorPallet.add(color)
   }
 
   clearPixel(xIdx: number, yIdx: number) {

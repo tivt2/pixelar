@@ -144,6 +144,16 @@ export class DrawingBoard {
     return Math.round(this.scale)
   }
 
+  getColorPallet(): Set<Color> {
+    let out: Set<Color> = new Set()
+    for (const layer of this.layers) {
+      for (const color of layer.getColorPallet()) {
+        out.add(color)
+      }
+    }
+    return out
+  }
+
   startAction(action: Action, e: SyntheticEvent) {
     this.toolManager.setTool(action)
     this.toolManager.startAction(e, this)
