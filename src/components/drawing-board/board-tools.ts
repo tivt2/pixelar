@@ -149,17 +149,17 @@ export class FloodFill implements BoardTool {
         board.renderBorder()
       }
 
-      if (yIdx < layer.canvas.height-1) {
-        rec(xIdx, yIdx+1)
+      if (yIdx < layer.canvas.height - 1) {
+        rec(xIdx, yIdx + 1)
       }
-      if (xIdx < layer.canvas.width-1) {
-        rec(xIdx+1, yIdx)
+      if (xIdx < layer.canvas.width - 1) {
+        rec(xIdx + 1, yIdx)
       }
       if (yIdx > 0) {
-        rec(xIdx, yIdx-1)
+        rec(xIdx, yIdx - 1)
       }
       if (xIdx > 0) {
-        rec(xIdx-1, yIdx)
+        rec(xIdx - 1, yIdx)
       }
     }
 

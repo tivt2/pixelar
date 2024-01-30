@@ -2,6 +2,7 @@ import { MouseEvent, SyntheticEvent } from "react"
 import { Action, ToolManager } from "./tool-manager"
 import { Layer } from "./layer"
 import { Color, ImageState, Pixel, PixelState, Position } from "./board-types"
+import { Frame } from "./frame"
 
 export type DrawingBoardConfig = {
   canvas: HTMLCanvasElement
@@ -22,8 +23,8 @@ export class DrawingBoard {
 
   private imgState: ImageState
 
-  private layers: Array<Layer>
-  private currLayer: number
+  private frames: Array<Frame>
+  private currFrame: number
 
   private bgMultiplier: number
   private bg: Layer
@@ -49,8 +50,8 @@ export class DrawingBoard {
     this.offsetX = 0
     this.offsetY = 0
     this.imgState = []
-    this.layers = []
-    this.currLayer = -1
+    this.frames = []
+    this.currFrame = -1
     this.bgMultiplier = 1
     this.bg = new Layer(0, 0)
     this.effectMultiplier = 1
@@ -72,8 +73,7 @@ export class DrawingBoard {
     this.offsetY = Math.floor((canvas.height - this.scale * this.height) / 2)
 
     this.imgState = new Array<PixelState>(width * height).fill(null)
-    this.layers = [new Layer(width, height)]
-    this.currLayer = 0
+    this.frames = [new Frame(width, height)]
     this.bgMultiplier = 1
     this.bg = new Layer(width * this.bgMultiplier, height * this.bgMultiplier)
     this.effectMultiplier = 1
@@ -101,24 +101,25 @@ export class DrawingBoard {
     return this.color
   }
 
-  getCurrLayer(): number {
-    return this.currLayer
+  getCurrFrame(): number {
+    return this.currFrame
   }
-  getLayers(): Array<Layer> {
-    return this.layers.slice()
+  getFrames(): Array<Frame> {
+    return this.frames.slice()
   }
-  getLayer(): Layer {
-    return this.layers[this.currLayer]
+  getFrame(): Frame {
+    return this.frames[this.currFrame]
   }
-  createLayer() {
-    this.layers.push(new Layer(this.width, this.height))
+  createFrame() {
+    this.frames.push(new Frame(this.width, this.height))
   }
-  changeLayer(idx: number) {
-    if (idx < 0 || idx >= this.layers.length) {
+  changeFrame(idx: number) {
+    if (idx < 0 || idx >= this.frames.length) {
       return
     }
 
-    this.currLayer = idx
+    this.currFrame = idx
+    this.rerender()
   }
 
   translate(dx: number, dy: number) {
@@ -145,13 +146,13 @@ export class DrawingBoard {
   }
 
   getColorPallet(): Set<Color> {
-    let out: Set<Color> = new Set()
-    for (const layer of this.layers) {
-      for (const color of layer.getColorPallet()) {
-        out.add(color)
+    let colorPallet: Set<Color> = new Set()
+    for (const frame of this.frames) {
+      for (const color of frame.getColorPallet()) {
+        colorPallet.add(color)
       }
     }
-    return out
+    return colorPallet
   }
 
   startAction(action: Action, e: SyntheticEvent) {
@@ -218,10 +219,10 @@ export class DrawingBoard {
     )
   }
 
-  renderLayer(layer: Layer) {
+  renderFrame(frame: Frame) {
     const scale = this.getScale()
     this.ctx.drawImage(
-      layer.canvas,
+      frame.canvas,
       0,
       0,
       this.width * scale,
@@ -230,8 +231,8 @@ export class DrawingBoard {
   }
 
   renderAllLayers() {
-    for (let i = 0; i < this.layers.length; i++) {
-      this.renderLayer(this.layers[i])
+    for (let i = 0; i < this.frames.length; i++) {
+      this.renderFrame(this.frames[i])
     }
   }
 
@@ -288,12 +289,12 @@ export class DrawingBoard {
     const scale = this.getScale()
     const xIdx = Math.floor(x / scale)
     const yIdx = Math.floor(y / scale)
-    const layer = this.layers[this.currLayer]
+    const frame = this.frames[this.currFrame]
     if (
       xIdx < 0 ||
-      xIdx >= layer.canvas.width ||
+      xIdx >= frame.canvas.width ||
       yIdx < 0 ||
-      yIdx >= layer.canvas.height
+      yIdx >= frame.canvas.height
     ) {
       return null
     }
@@ -301,12 +302,12 @@ export class DrawingBoard {
   }
 
   getPixelOverColor(xIdx: number, yIdx: number): Color {
-    if (this.currLayer + 1 >= this.layers.length) {
+    if (this.currFrame + 1 >= this.frames.length) {
       return new Color("")
     }
 
-    for (let i = this.currLayer + 1; i < this.layers.length; i++) {
-      const color = this.layers[i].getPixelColor(xIdx, yIdx)
+    for (let i = this.currFrame + 1; i < this.frames.length; i++) {
+      const color = this.frames[i].getPixelColor(xIdx, yIdx)
       if (!color.isEqual("")) {
         return color
       }
@@ -316,12 +317,12 @@ export class DrawingBoard {
   }
 
   getPixelUnderColor(xIdx: number, yIdx: number): Color {
-    if (this.layers.length == 1) {
+    if (this.frames.length == 1) {
       return new Color("")
     }
 
-    for (let i = this.currLayer - 1; i >= 0; i--) {
-      const color = this.layers[i].getPixelColor(xIdx, yIdx)
+    for (let i = this.currFrame - 1; i >= 0; i--) {
+      const color = this.frames[i].getPixelColor(xIdx, yIdx)
       if (!color.isEqual("")) {
         return color
       }
