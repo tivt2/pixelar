@@ -9,26 +9,31 @@ export function Tools() {
   const [localLayer, setLocalLayer] = useState(0)
 
   useEffect(() => {
-    setLocalColor(board.getColor().hex())
-    setLayers(board.getLayers().reverse())
-    setLocalLayer(board.getCurrLayer())
+    const frame = board.currFrame()
+    if (!frame) {
+      return
+    }
+    setLocalColor(board.color.hex())
+    setLayers(frame.getLayers().reverse())
+    setLocalLayer(frame.currLayerIdx)
   }, [board])
 
   function handleChangeColor(e: ChangeEvent<HTMLInputElement>) {
     setLocalColor(e.target.value)
-    board.setColor(e.target.value)
+    board.color.change(e.target.value)
   }
 
   function handleChangeLayer(idx: number) {
     return function () {
-      board.changeLayer(idx)
+      board.currFrame().changeLayer(idx)
       setLocalLayer(idx)
     }
   }
 
   function handleNewLayer() {
-    board.createLayer()
-    setLayers(board.getLayers().reverse())
+    board.currFrame().createLayer()
+    setLayers(board.currFrame().getLayers().reverse())
+    setLocalLayer((old) => old + 1)
   }
 
   return (
@@ -43,7 +48,7 @@ export function Tools() {
           new layer
         </button>
         {layers.map((_, i) => {
-          const idx = board.getLayers().length - 1 - i
+          const idx = board.currFrame().getLayers().length - 1 - i
           return (
             <div
               key={i}

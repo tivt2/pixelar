@@ -1,5 +1,5 @@
 import { MouseEvent, SyntheticEvent } from "react"
-import { DrawingBoard } from "./drawing-board"
+import { DrawingBoard } from "./board"
 import { Position } from "./board-types"
 
 export interface BoardTool {
@@ -16,20 +16,21 @@ export class Draw implements BoardTool {
       return
     }
     const { xIdx, yIdx } = indexes
-    const layer = board.getLayer()
+    const frame = board.currFrame()
+    const layer = frame.currLayer()
     const layerColor = layer.getPixelColor(xIdx, yIdx)
-    const boardColor = board.getColor()
-    if (layerColor.isEqual(boardColor.hex())) {
+    if (layerColor.isEqual(board.color.hex())) {
       return
     }
 
-    layer.paintPixel(xIdx, yIdx, boardColor)
+    layer.paintPixel(xIdx, yIdx, board.color)
 
-    const overColor = board.getPixelOverColor(xIdx, yIdx)
+    const overColor = frame.getPixelOverColor(xIdx, yIdx)
     if (overColor.isEqual("")) {
-      board.renderPixel(xIdx, yIdx, boardColor)
+      board.renderPixel(xIdx, yIdx, board.color)
       board.renderBorder()
     }
+    console.log(frame.currLayerIdx, overColor.hex())
   }
   continue(e: MouseEvent, board: DrawingBoard) {
     this.start(e, board)
@@ -45,7 +46,8 @@ export class Erase implements BoardTool {
       return
     }
     const { xIdx, yIdx } = indexes
-    const layer = board.getLayer()
+    const frame = board.currFrame()
+    const layer = frame.currLayer()
     const layerColor = layer.getPixelColor(xIdx, yIdx)
     if (layerColor.isEqual("")) {
       return
@@ -53,9 +55,11 @@ export class Erase implements BoardTool {
 
     layer.clearPixel(xIdx, yIdx)
 
-    const overColor = board.getPixelOverColor(xIdx, yIdx)
+    const overColor = frame.getPixelOverColor(xIdx, yIdx)
+    console.log(overColor)
     if (overColor.isEqual("")) {
-      const underColor = board.getPixelUnderColor(xIdx, yIdx)
+      const underColor = frame.getPixelUnderColor(xIdx, yIdx)
+      console.log(underColor)
       if (underColor.isEqual("")) {
         board.clearPixel(xIdx, yIdx)
       } else {
@@ -102,12 +106,8 @@ export class Zoom implements BoardTool {
     const { x, y } = board.getMousePosition(e)
 
     const newScale = board.getRawScale() * this.amount
-    const scaleOffsetX = Math.round(
-      (board.getOffsetX() - x) * (this.amount - 1)
-    )
-    const scaleOffsetY = Math.round(
-      (board.getOffsetY() - y) * (this.amount - 1)
-    )
+    const scaleOffsetX = Math.round((board.offsetX - x) * (this.amount - 1))
+    const scaleOffsetY = Math.round((board.offsetY - y) * (this.amount - 1))
 
     board.setScale(newScale)
     board.translate(scaleOffsetX, scaleOffsetY)
@@ -126,10 +126,10 @@ export class FloodFill implements BoardTool {
       return
     }
     const { xIdx, yIdx } = indexes
-    const layer = board.getLayer()
+    const frame = board.currFrame()
+    const layer = frame.currLayer()
 
     const oldColor = layer.getPixelColor(xIdx, yIdx)
-    const newColor = board.getColor()
 
     const rec = (xIdx: number, yIdx: number) => {
       const color = layer.getPixelColor(xIdx, yIdx)
@@ -137,15 +137,15 @@ export class FloodFill implements BoardTool {
         return
       }
 
-      if (color.isEqual(newColor.hex())) {
+      if (color.isEqual(board.color.hex())) {
         return
       }
 
-      layer.paintPixel(xIdx, yIdx, newColor)
+      layer.paintPixel(xIdx, yIdx, board.color)
 
       const overColor = board.getPixelOverColor(xIdx, yIdx)
       if (overColor.isEqual("")) {
-        board.renderPixel(xIdx, yIdx, newColor)
+        board.renderPixel(xIdx, yIdx, board.color)
         board.renderBorder()
       }
 

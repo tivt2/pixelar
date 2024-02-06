@@ -6,9 +6,7 @@ export class Frame {
   public ctx: OffscreenCanvasRenderingContext2D
 
   private layers: Array<Layer>
-  private currLayer: number
-
-  private color: Color
+  public currLayerIdx: number
 
   constructor(width: number, height: number) {
     this.canvas = new OffscreenCanvas(width, height)
@@ -20,36 +18,29 @@ export class Frame {
     ctx.imageSmoothingEnabled = false
 
     this.layers = [new Layer(width, height)]
-    this.currLayer = 0
-
-    this.color = new Color("#ff8800")
+    this.currLayerIdx = 0
   }
 
-  setColor(color: string) {
-    this.color.change(color)
-  }
-  getColor(): Color {
-    return this.color
-  }
-
-  getCurrLayer(): number {
-    return this.currLayer
-  }
   getLayers(): Array<Layer> {
     return this.layers.slice()
   }
-  getLayer(): Layer {
-    return this.layers[this.currLayer]
+  currLayer(): Layer {
+    return this.layers[this.currLayerIdx]
   }
   createLayer() {
-    this.layers.push(new Layer(this.canvas.width, this.canvas.height))
+    this.layers.splice(
+      this.currLayerIdx + 1,
+      0,
+      new Layer(this.canvas.width, this.canvas.height)
+    )
+    this.currLayerIdx++
   }
   changeLayer(idx: number) {
     if (idx < 0 || idx >= this.layers.length) {
       return
     }
 
-    this.currLayer = idx
+    this.currLayerIdx = idx
   }
 
   getColorPallet(): Set<Color> {
@@ -76,5 +67,35 @@ export class Frame {
     }
 
     return new Color(hex)
+  }
+
+  getPixelOverColor(xIdx: number, yIdx: number): Color {
+    if (this.currLayerIdx + 1 >= this.layers.length) {
+      return new Color("")
+    }
+
+    for (let i = this.currLayerIdx + 1; i < this.layers.length; i++) {
+      const color = this.layers[i].getPixelColor(xIdx, yIdx)
+      if (!color.isEqual("")) {
+        return color
+      }
+    }
+
+    return new Color("")
+  }
+
+  getPixelUnderColor(xIdx: number, yIdx: number): Color {
+    if (this.layers.length == 1) {
+      return new Color("")
+    }
+
+    for (let i = this.currLayerIdx - 1; i >= 0; i--) {
+      const color = this.layers[i].getPixelColor(xIdx, yIdx)
+      if (!color.isEqual("")) {
+        return color
+      }
+    }
+
+    return new Color("")
   }
 }

@@ -12,19 +12,19 @@ export type DrawingBoardConfig = {
 }
 
 export class DrawingBoard {
-  private canvas: HTMLCanvasElement
-  private ctx: CanvasRenderingContext2D
+  public canvas: HTMLCanvasElement
+  public ctx: CanvasRenderingContext2D
 
-  private width: number
-  private height: number
+  public width: number
+  public height: number
   private scale: number
-  private offsetX: number
-  private offsetY: number
+  public offsetX: number
+  public offsetY: number
 
-  private imgState: ImageState
+  public imgState: ImageState
 
   private frames: Array<Frame>
-  private currFrame: number
+  public currFrameIdx: number
 
   private bgMultiplier: number
   private bg: Layer
@@ -32,7 +32,7 @@ export class DrawingBoard {
   private effectMultiplier: number
   private effect: Layer
 
-  private color: Color
+  public color: Color
 
   private toolManager: ToolManager = new ToolManager()
 
@@ -51,7 +51,7 @@ export class DrawingBoard {
     this.offsetY = 0
     this.imgState = []
     this.frames = []
-    this.currFrame = -1
+    this.currFrameIdx = -1
     this.bgMultiplier = 1
     this.bg = new Layer(0, 0)
     this.effectMultiplier = 1
@@ -74,6 +74,7 @@ export class DrawingBoard {
 
     this.imgState = new Array<PixelState>(width * height).fill(null)
     this.frames = [new Frame(width, height)]
+    this.currFrameIdx = 0
     this.bgMultiplier = 1
     this.bg = new Layer(width * this.bgMultiplier, height * this.bgMultiplier)
     this.effectMultiplier = 1
@@ -94,31 +95,26 @@ export class DrawingBoard {
     this.renderEffects()
   }
 
-  setColor(color: string) {
-    this.color.change(color)
-  }
-  getColor(): Color {
-    return this.color
-  }
-
-  getCurrFrame(): number {
-    return this.currFrame
-  }
   getFrames(): Array<Frame> {
     return this.frames.slice()
   }
-  getFrame(): Frame {
-    return this.frames[this.currFrame]
+  currFrame(): Frame {
+    return this.frames[this.currFrameIdx]
   }
   createFrame() {
-    this.frames.push(new Frame(this.width, this.height))
+    this.frames.splice(
+      this.currFrameIdx + 1,
+      0,
+      new Frame(this.width, this.height)
+    )
+    this.currFrameIdx++
   }
   changeFrame(idx: number) {
     if (idx < 0 || idx >= this.frames.length) {
       return
     }
 
-    this.currFrame = idx
+    this.currFrameIdx = idx
     this.rerender()
   }
 
@@ -126,13 +122,6 @@ export class DrawingBoard {
     this.ctx.translate(dx, dy)
     this.offsetX += dx
     this.offsetY += dy
-  }
-
-  getOffsetX(): number {
-    return this.offsetX
-  }
-  getOffsetY(): number {
-    return this.offsetY
   }
 
   setScale(scale: number) {
@@ -178,8 +167,8 @@ export class DrawingBoard {
 
   clearBoard() {
     this.ctx.clearRect(
-      -this.getOffsetX(),
-      -this.getOffsetY(),
+      -this.offsetX,
+      -this.offsetY,
       this.canvas.width,
       this.canvas.height
     )
@@ -289,45 +278,9 @@ export class DrawingBoard {
     const scale = this.getScale()
     const xIdx = Math.floor(x / scale)
     const yIdx = Math.floor(y / scale)
-    const frame = this.frames[this.currFrame]
-    if (
-      xIdx < 0 ||
-      xIdx >= frame.canvas.width ||
-      yIdx < 0 ||
-      yIdx >= frame.canvas.height
-    ) {
+    if (xIdx < 0 || xIdx >= this.width || yIdx < 0 || yIdx >= this.height) {
       return null
     }
     return { xIdx, yIdx }
-  }
-
-  getPixelOverColor(xIdx: number, yIdx: number): Color {
-    if (this.currFrame + 1 >= this.frames.length) {
-      return new Color("")
-    }
-
-    for (let i = this.currFrame + 1; i < this.frames.length; i++) {
-      const color = this.frames[i].getPixelColor(xIdx, yIdx)
-      if (!color.isEqual("")) {
-        return color
-      }
-    }
-
-    return new Color("")
-  }
-
-  getPixelUnderColor(xIdx: number, yIdx: number): Color {
-    if (this.frames.length == 1) {
-      return new Color("")
-    }
-
-    for (let i = this.currFrame - 1; i >= 0; i--) {
-      const color = this.frames[i].getPixelColor(xIdx, yIdx)
-      if (!color.isEqual("")) {
-        return color
-      }
-    }
-
-    return new Color("")
   }
 }

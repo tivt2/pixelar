@@ -1,5 +1,5 @@
 import { SyntheticEvent } from "react"
-import { DrawingBoard } from "./drawing-board"
+import { DrawingBoard } from "./board"
 import { BoardTool, Draw, Erase, FloodFill, Pan, Zoom } from "./board-tools"
 
 export const ACTION = {
