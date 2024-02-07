@@ -1,14 +1,14 @@
 import { ReactNode, createContext, useContext, useRef } from "react"
-import { DrawingBoard } from "./board"
+import { BoardFacade } from "../../services/drawing-board/board-facade"
 
 type CanvasContext = {
-  board: DrawingBoard
+  board: BoardFacade
 }
 
 const canvasContext = createContext<CanvasContext | null>(null)
 
 export function CanvasContextProvider({ children }: { children: ReactNode }) {
-  const board = useRef<DrawingBoard>(new DrawingBoard())
+  const board = useRef<BoardFacade>(new BoardFacade())
 
   const initialContext: CanvasContext = {
     board: board.current,

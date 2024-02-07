@@ -5,8 +5,10 @@ export class Frame {
   public canvas: OffscreenCanvas
   public ctx: OffscreenCanvasRenderingContext2D
 
-  private layers: Array<Layer>
+  private _layers: Array<Layer>
   public currLayerIdx: number
+
+  public colorPallet: Set<Color>
 
   constructor(width: number, height: number) {
     this.canvas = new OffscreenCanvas(width, height)
@@ -17,18 +19,20 @@ export class Frame {
     this.ctx = ctx
     ctx.imageSmoothingEnabled = false
 
-    this.layers = [new Layer(width, height)]
+    this._layers = [new Layer(width, height)]
     this.currLayerIdx = 0
+
+    this.colorPallet = new Set()
   }
 
   getLayers(): Array<Layer> {
-    return this.layers.slice()
+    return this._layers.slice()
   }
   currLayer(): Layer {
-    return this.layers[this.currLayerIdx]
+    return this._layers[this.currLayerIdx]
   }
   createLayer() {
-    this.layers.splice(
+    this._layers.splice(
       this.currLayerIdx + 1,
       0,
       new Layer(this.canvas.width, this.canvas.height)
@@ -36,7 +40,7 @@ export class Frame {
     this.currLayerIdx++
   }
   changeLayer(idx: number) {
-    if (idx < 0 || idx >= this.layers.length) {
+    if (idx < 0 || idx >= this._layers.length) {
       return
     }
 
@@ -45,7 +49,7 @@ export class Frame {
 
   getColorPallet(): Set<Color> {
     let out: Set<Color> = new Set()
-    for (const layer of this.layers) {
+    for (const layer of this._layers) {
       for (const color of layer.getColorPallet()) {
         out.add(color)
       }
@@ -70,12 +74,12 @@ export class Frame {
   }
 
   getPixelOverColor(xIdx: number, yIdx: number): Color {
-    if (this.currLayerIdx + 1 >= this.layers.length) {
+    if (this.currLayerIdx + 1 >= this._layers.length) {
       return new Color("")
     }
 
-    for (let i = this.currLayerIdx + 1; i < this.layers.length; i++) {
-      const color = this.layers[i].getPixelColor(xIdx, yIdx)
+    for (let i = this.currLayerIdx + 1; i < this._layers.length; i++) {
+      const color = this._layers[i].getPixelColor(xIdx, yIdx)
       if (!color.isEqual("")) {
         return color
       }
@@ -85,17 +89,47 @@ export class Frame {
   }
 
   getPixelUnderColor(xIdx: number, yIdx: number): Color {
-    if (this.layers.length == 1) {
+    if (this._layers.length == 1) {
       return new Color("")
     }
 
     for (let i = this.currLayerIdx - 1; i >= 0; i--) {
-      const color = this.layers[i].getPixelColor(xIdx, yIdx)
+      const color = this._layers[i].getPixelColor(xIdx, yIdx)
       if (!color.isEqual("")) {
         return color
       }
     }
 
     return new Color("")
+  }
+
+  paintPixel(xIdx: number, yIdx: number, color: Color) {
+    this.ctx.fillStyle = color.hex()
+    this.ctx.fillRect(xIdx, yIdx, 1, 1)
+    this.colorPallet.add(color)
+  }
+
+  clearPixel(xIdx: number, yIdx: number) {
+    this.ctx.clearRect(xIdx, yIdx, 1, 1)
+  }
+
+  clearFull() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+  }
+
+  renderAllLayers() {
+    for (let i = 0; i < this._layers.length; i++) {
+      this.renderLayer(this._layers[i])
+    }
+  }
+
+  renderLayer(layer: Layer) {
+    this.ctx.drawImage(
+      layer.canvas,
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    )
   }
 }

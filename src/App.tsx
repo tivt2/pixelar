@@ -1,6 +1,6 @@
-import { Canvas } from "./components/drawing-board/Canvas"
-import { CanvasContextProvider } from "./components/drawing-board/CanvasContext"
-import { Tools } from "./components/drawing-board/Tools"
+import { Canvas } from "./components/Canvas/Canvas"
+import { CanvasContextProvider } from "./components/Canvas/CanvasContext"
+import { Tools } from "./components/Canvas/Tools"
 
 function App() {
   return (

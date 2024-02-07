@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react"
 import { useCanvasContext } from "./CanvasContext"
-import { Layer } from "./layer"
+import { Layer } from "../../services/drawing-board/layer"
 
 export function Tools() {
   const { board } = useCanvasContext()
@@ -9,18 +9,21 @@ export function Tools() {
   const [localLayer, setLocalLayer] = useState(0)
 
   useEffect(() => {
+    if (!board) {
+      return
+    }
     const frame = board.currFrame()
     if (!frame) {
       return
     }
-    setLocalColor(board.color.hex())
+    setLocalColor(board.getColor().hex())
     setLayers(frame.getLayers().reverse())
     setLocalLayer(frame.currLayerIdx)
   }, [board])
 
   function handleChangeColor(e: ChangeEvent<HTMLInputElement>) {
     setLocalColor(e.target.value)
-    board.color.change(e.target.value)
+    board.getColor().change(e.target.value)
   }
 
   function handleChangeLayer(idx: number) {

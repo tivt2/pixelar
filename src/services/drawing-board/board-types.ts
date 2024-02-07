@@ -1,6 +1,3 @@
-import { Layer } from "./layer"
-import { BoardTool } from "./board-tools"
-
 export type RGBA = [number, number, number, number]
 
 export class Color {
@@ -56,18 +53,3 @@ export type PixelState = {
   color: Color
 } | null
 export type ImageState = Array<PixelState>
-
-export type BoardState = {
-  width: number
-  height: number
-  offsetX: number
-  offsetY: number
-  scale: number
-  imgState: ImageState
-  layers: Array<Layer>
-  curLayer: number
-  bgScale: number
-  bg: Layer
-  color: Color
-  tool: BoardTool
-}
