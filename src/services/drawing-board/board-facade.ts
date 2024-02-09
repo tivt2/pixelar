@@ -52,6 +52,9 @@ export class BoardFacade {
   currFrame(): Frame {
     return this._state.currFrame()
   }
+  currFrameIdx(): number {
+    return this._state.currFrameIdx
+  }
   getFrames(): Array<Frame> {
     return this._state.frames.slice()
   }
@@ -66,5 +69,6 @@ export class BoardFacade {
 
   createFrame() {
     this._state.createFrame()
+    this.renderer.rerender()
   }
 }

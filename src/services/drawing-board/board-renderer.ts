@@ -90,7 +90,7 @@ export class BoardRenderer {
   rerender() {
     this.clearBoard()
     this.renderBG()
-    this.renderFrame(this._state.frames[this._state.currFrameIdx])
+    this.renderFrame(this._state.currFrame())
     this.renderEffects()
   }
 
